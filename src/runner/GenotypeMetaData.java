@@ -1,10 +1,10 @@
-package daxing.v2.localAncestryInfer.runner;
+package runner;
 
-import daxing.common.utiles.IOTool;
-import daxing.v2.localAncestryInfer.simulation.SimulationMetadata;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import pgl.infra.utils.PStringUtils;
+import simulation.SimulationMetadata;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class GenotypeMetaData {
         Arrays.fill(timeSinceAdmixture, -1);
         this.timeSinceAdmixture=timeSinceAdmixture;
         this.chrID=simulationMetadata.getChrID();
-        List<String>[] referencePopList = new List[genotypeID.length];
+        List[] referencePopList = new List[genotypeID.length];
         for (int i = 0; i < referencePopList.length; i++) {
             referencePopList[i] = new ArrayList<>();
             referencePopList[i].addAll(simulationMetadata.getIntrogressedPop()[i]);
@@ -115,7 +115,7 @@ public class GenotypeMetaData {
             this.timeSinceAdmixture = timeSinceAdmixture.toIntArray();
             this.chrID=chrIDList.toIntArray();
             this.recombinationMap=recombinationMap.toArray(new String[0]);
-            List<String>[] referencePopList = new List[genotypeID.length];
+            List[] referencePopList = new List[genotypeID.length];
             for (int i = 0; i < referencePopList.length; i++) {
                 referencePopList[i] = new ArrayList<>();
                 referencePopList[i].addAll(introgressedPopList.get(i));

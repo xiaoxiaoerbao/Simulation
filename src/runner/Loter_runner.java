@@ -1,12 +1,12 @@
-package daxing.v2.localAncestryInfer.runner;
+package runner;
 
-import daxing.common.sh.CommandUtils;
-import daxing.common.utiles.IOTool;
-import daxing.v2.localAncestryInfer.evaluation.LocalAncestry;
+import evaluation.LocalAncestry;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import pgl.infra.utils.Benchmark;
-import pgl.infra.utils.PStringUtils;
+import utils.Benchmark;
+import utils.CommandUtils;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -326,11 +326,7 @@ public class Loter_runner extends LocalAncestry {
                     for (int j = 0; j < genotypeMetaData.referencePopList[i].size(); j++) {
                         int variantIndex = 0;
                         for (String s : temp) {
-                            if (Integer.parseInt(s) == j) {
-                                localAncestry[i][haplotypeIndex][j].set(variantIndex, true);
-                            } else {
-                                localAncestry[i][haplotypeIndex][j].set(variantIndex, false);
-                            }
+                            localAncestry[i][haplotypeIndex][j].set(variantIndex, Integer.parseInt(s) == j);
                             variantIndex++;
                         }
                     }

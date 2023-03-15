@@ -1,11 +1,11 @@
 package simulation;
 
-import daxing.common.utiles.IOTool;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import pgl.infra.utils.PStringUtils;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class SimulationMetadata {
     int[] admixedPopSampleSize;
     String[] nativePop;
     int[] nativePopSampleSize;
-    List<String>[] introgressedPop;
+    List[] introgressedPop;
     IntList[] introgressedPopSampleSize;
     int[] sequenceLen;
     double[] recombinationRate;
@@ -58,8 +58,8 @@ public class SimulationMetadata {
                 introgressedPopList.add(te);
                 te = PStringUtils.fastSplit(tem.get(1),",");
                 intList =new IntArrayList();
-                for (int i = 0; i < te.size(); i++) {
-                    intList.add(Integer.parseInt(te.get(i)));
+                for (String s : te) {
+                    intList.add(Integer.parseInt(s));
                 }
                 introgressedPopSampleSizeList.add(intList);
                 seqLenList.add(Integer.parseInt(temp.get(5)));
@@ -114,13 +114,13 @@ public class SimulationMetadata {
         return introgressedPopSampleSize;
     }
 
-    public List<String>[] getIntrogressedPop() {
+    public List[] getIntrogressedPop() {
         return introgressedPop;
     }
 
 
     public List<String>[] getReferencePopList(){
-        List<String>[] referencePopList = new List[this.demesPath.length];
+        List[] referencePopList = new List[this.demesPath.length];
         for (int i = 0; i < referencePopList.length; i++) {
             referencePopList[i] = new ArrayList<>();
             referencePopList[i].addAll(this.getIntrogressedPop()[i]);

@@ -1,14 +1,14 @@
-package daxing.v2.localAncestryInfer.runner;
+package runner;
 
-import daxing.common.sh.CommandUtils;
-import daxing.common.utiles.IOTool;
-import daxing.v2.localAncestryInfer.evaluation.LocalAncestry;
+import evaluation.LocalAncestry;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import pgl.infra.utils.Benchmark;
-import pgl.infra.utils.PStringUtils;
+import utils.Benchmark;
+import utils.CommandUtils;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -234,11 +234,11 @@ public class Mosaic_runner extends LocalAncestry {
             File sampleNamesFile = new File(subDirFile[0], "sample.names");
             BufferedWriter bwSampleName = IOTool.getWriter(sampleNamesFile);
             IntList indexList;
-            for (int i = 0; i < refPop_AdmixedPopList.size(); i++) {
-                indexList = popIndexMap.get(refPop_AdmixedPopList.get(i));
+            for (String value : refPop_AdmixedPopList) {
+                indexList = popIndexMap.get(value);
                 for (int j = 0; j < indexList.size(); j++) {
                     sb.setLength(0);
-                    sb.append(refPop_AdmixedPopList.get(i)).append(" ");
+                    sb.append(value).append(" ");
                     sb.append(headerList.get(indexList.getInt(j))).append(" ");
                     sb.append("0 0 0 2 -9");
                     bwSampleName.write(sb.toString());
@@ -311,7 +311,8 @@ public class Mosaic_runner extends LocalAncestry {
             sb.append("-m ").append(this.coresNumber).append(" ");
             sb.append("-c ").append(genotypeMetaData.chrID[i]).append(":").append(genotypeMetaData.chrID[i]);
             int finalI = i;
-            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), workingDir[finalI].getAbsolutePath(), new File(logFile)));
+            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), workingDir[finalI].getAbsolutePath(),
+                    new File(logFile)));
         }
 
         List<Integer> results = CommandUtils.run_commands(callableList, coresNumber*2);
@@ -444,7 +445,7 @@ public class Mosaic_runner extends LocalAncestry {
                     while ((line=br.readLine())!=null){
                         temp = PStringUtils.fastSplit(line);
                         for (int k = 0; k < temp.size(); k++) {
-                            ancestryValue = Double.parseDouble(temp.get(k)) > 0.5 ? true : false;
+                            ancestryValue = Double.parseDouble(temp.get(k)) > 0.5;
                             localAncestry[i][k][j].set(variantIndex, ancestryValue);
                         }
                         variantIndex++;

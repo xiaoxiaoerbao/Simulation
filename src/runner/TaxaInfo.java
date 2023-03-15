@@ -1,7 +1,7 @@
-package daxing.v2.localAncestryInfer.runner;
+package runner;
 
 import com.google.common.collect.Table;
-import daxing.common.table.RowTableTool;
+import utils.RowTableTool;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,12 +1,12 @@
-package daxing.v2.localAncestryInfer.runner;
+package runner;
 
-import daxing.common.sh.CommandUtils;
-import daxing.common.utiles.IOTool;
-import daxing.v2.localAncestryInfer.evaluation.LocalAncestry;
+import evaluation.LocalAncestry;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import pgl.infra.utils.Benchmark;
-import pgl.infra.utils.PStringUtils;
+import utils.Benchmark;
+import utils.CommandUtils;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -149,7 +149,8 @@ public class LAIDP_runner extends LocalAncestry {
             sb.append(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".localAnc.txt")).append(" ");
             sb.append(this.threadsNum);
             int finalI = i;
-            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), workingDir[finalI].getAbsolutePath(), new File(logFilePath)));
+            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), workingDir[finalI].getAbsolutePath(),
+                    new File(logFilePath)));
         }
 
         List<Integer> results = CommandUtils.run_commands(callableList, threadsNum);
@@ -316,7 +317,7 @@ public class LAIDP_runner extends LocalAncestry {
                     for (int j = 1; j < temp.size(); j++) {
                         tem = PStringUtils.fastSplit(temp.get(j), ",");
                         for (int k = 0; k < tem.size(); k++) {
-                            ancestryValue = Integer.parseInt(tem.get(k)) > 0.5 ? true : false;
+                            ancestryValue = Integer.parseInt(tem.get(k)) > 0.5;
                             if (k == 0){
                                 // k=0, native ancestry
                                 localAncestry[i][j-1][tem.size()-1].set(variantIndex, ancestryValue);

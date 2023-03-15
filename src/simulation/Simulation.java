@@ -1,11 +1,11 @@
 package simulation;
 
-import daxing.common.sh.CommandUtils;
-import daxing.common.utiles.IOTool;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.apache.commons.lang3.StringUtils;
-import pgl.infra.utils.Benchmark;
-import pgl.infra.utils.PStringUtils;
+import utils.Benchmark;
+import utils.CommandUtils;
+import utils.IOTool;
+import utils.PStringUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -95,9 +95,9 @@ public class Simulation {
         /**
          * Required parameters
          */
-        private SimulationMetadata simulationMetadata;
-        private String logFile;
-        private String outDir;
+        private final SimulationMetadata simulationMetadata;
+        private final String logFile;
+        private final String outDir;
 
         /**
          * Optional parameters
@@ -223,7 +223,7 @@ public class Simulation {
             sb.append(this.getSampleSizeOfAdmixedPop(i)).append(",");
             sb.append(this.getSampleSizeOfNativePop(i)).append(",");
             sb.append(StringUtils.join(this.getSampleSizeOfIntrogressedPop(i), ","));
-            callableList.add(()->CommandUtils.runOneCommand(sb.toString(), this.getOutDir(),
+            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), this.getOutDir(),
                     new File(this.getLogFile())));
         }
         List<Integer> results = CommandUtils.run_commands(callableList, this.getThreadsNum());
@@ -241,84 +241,5 @@ public class Simulation {
         }
         System.out.println("simulation runner completed in "+ Benchmark.getTimeSpanSeconds(start)+" seconds");
     }
-
-//    public static void addAncestralSample(String simulatedGenotype, String simulatedGenotypeWithAncestral_outFile){
-//        try (BufferedReader br = IOTool.getReader(simulatedGenotype);
-//             BufferedWriter bw = IOTool.getWriter(simulatedGenotypeWithAncestral_outFile)) {
-//            String line;
-//            while ((line=br.readLine()).startsWith("##")){
-//                bw.write(line);
-//                bw.newLine();
-//            }
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(line).append("\t").append("ancestral");
-//            bw.write(sb.toString());
-//            bw.newLine();
-//            while ((line=br.readLine())!=null){
-//                sb.setLength(0);
-//                sb.append(line).append("\t").append(0);
-//                bw.write(sb.toString());
-//                bw.newLine();
-//            }
-//            bw.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public static String transform_vcf2Geno(String pythonInterpreterPath, String parseVCFPy,
-//                                          String simulatedGenotypeWithAncestral,
-//                                          String ploidyFile,
-//                                          String simulatedGenotypeWithAncestralGeno_outFile){
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(pythonInterpreterPath).append(" ");
-//        sb.append(parseVCFPy).append(" ");
-//        sb.append("-i").append(" ").append(simulatedGenotypeWithAncestral).append(" ");
-//        sb.append("--skipIndels --skipMono").append(" ").append("--ploidyFile ").append(ploidyFile).append(" ");
-//        sb.append("-o ").append(simulatedGenotypeWithAncestralGeno_outFile);
-//        return sb.toString();
-//    }
-//
-//    public static List<String> run_fd(String pythonInterpreterPath, String abbababaWindowPy, String genoFile,
-//                              String outDir, int[] p2TaxaID, int p1PopID, int p3PopID, String outGroup,
-//                              String popsFile, int[] haploidID, double admixture_proportion, int admixture_generation
-//            , double divergenceTime){
-//        List<String> commandsList = new ArrayList<>();
-//        StringBuilder sb = new StringBuilder();
-//        for (int i = 0; i < p2TaxaID.length; i++) {
-//            sb.setLength(0);
-//            sb.append(pythonInterpreterPath).append(" ").append(abbababaWindowPy).append(" ");
-//            sb.append("--windType sites").append(" ").append("-g ").append(genoFile).append(" ");
-//            sb.append("-f haplo").append(" ");
-//            sb.append("-o ").append(outDir).append("/simulate_proportion").append(admixture_proportion).append("_");
-//            sb.append("genetration").append(admixture_generation).append("_divergence").append(divergenceTime).append("Ne");
-//            sb.append("_tsk_");
-//            sb.append(p2TaxaID[i]).append(".csv ");
-//            sb.append("-w 200 -m 10 --overlap 100 -P1 ").append(p1PopID).append(" ");
-//            sb.append("-P2 tsk_").append(p2TaxaID[i]).append(" ");
-//            sb.append("-P3 ").append(p3PopID).append(" ").append("-O ").append(outGroup).append(" ");
-//            sb.append("-T 1 ").append("--popsFile ").append(popsFile).append(" ");
-//            sb.append("--writeFailedWindows --haploid ");
-//            for (int hapID : haploidID){
-//                sb.append("tsk_").append(hapID).append(",");
-//            }
-//            sb.append(outGroup);
-//            commandsList.add(sb.toString());
-//        }
-//        return commandsList;
-//    }
-//
-//    public static void transformFdResToIndividualLocalAncestry(String rscriptInterpreterPath,
-//                                                               String transformFdResToIndividualLocalAncestryR,
-//                                                               String fdResDir,
-//                                                               String individualLocalAncestryOutDir){
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(rscriptInterpreterPath).append(" ");
-//        sb.append(transformFdResToIndividualLocalAncestryR).append(" ");
-//        sb.append(fdResDir).append(" ");
-//        sb.append(individualLocalAncestryOutDir);
-//        Simulation.runCommand(sb.toString(), "transformFdResToIndividualLocalAncestry");
-//    }
-
 
 }
