@@ -42,6 +42,7 @@ public class LAIDP_runner extends LocalAncestry {
     int stepSize;
     String ancestralAllele;
     double switchCostScore;
+    int maxSolutionCount;
     int conjunctionNum;
 
 
@@ -64,6 +65,7 @@ public class LAIDP_runner extends LocalAncestry {
         this.stepSize=builder.stepSize;
         this.ancestralAllele=builder.ancestralAllele;
         this.switchCostScore=builder.switchCostScore;
+        this.maxSolutionCount=builder.maxSolutionCount;
         this.conjunctionNum=builder.conjunctionNum;
         this.threadsNum=builder.threadsNum;
         this.makeSubDir();
@@ -146,6 +148,7 @@ public class LAIDP_runner extends LocalAncestry {
             sb.append(this.ancestralAllele).append(" ");
             sb.append(this.conjunctionNum).append(" ");
             sb.append(this.switchCostScore).append(" ");
+            sb.append(this.maxSolutionCount).append(" ");
             sb.append(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".localAnc.txt")).append(" ");
             sb.append(this.threadsNum);
             int finalI = i;
@@ -176,11 +179,12 @@ public class LAIDP_runner extends LocalAncestry {
         /**
          * Optional parameters
          */
-        String softPath= "/Users/xudaxing/Software/LAIDP/LAIDP_single.jar";
+        String softPath= "/Users/xudaxing/Software/LAIDP/LAIDP.jar";
         int windowSize = 200;
         int stepSize = 100;
         String ancestralAllele = "simulation";
         double switchCostScore = 1.5;
+        int maxSolutionCount = 32;
         int conjunctionNum= 2;
         int threadsNum = 2;
 
@@ -212,6 +216,11 @@ public class LAIDP_runner extends LocalAncestry {
 
         public Builder switchCostScore(double switchCostScore){
             this.switchCostScore=switchCostScore;
+            return this;
+        }
+
+        public Builder maxSolutionCount(int maxSolutionCount){
+            this.maxSolutionCount = maxSolutionCount;
             return this;
         }
 

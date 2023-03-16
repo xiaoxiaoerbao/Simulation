@@ -6,7 +6,6 @@ import runner.*;
 import simulation.Simulation;
 import simulation.SimulationMetadata;
 import utils.IOTool;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +17,10 @@ import java.util.stream.IntStream;
 public class Start {
 
     public static void main(String[] args) {
-        evaluate_contingencyTable(DemographicModelTools.N_way.TWO_WAY, "");
+//        MD5.checkTwoFileMD5("/Users/xudaxing/Desktop/LAIDP_development/twoWay_ancient_test/005_evaluation/evaluation" +
+//                ".txt","/Users/xudaxing/Desktop/LAIDP_development/twoWay_ancient_test/005_evaluation/evaluation_0.txt");
+        String dir = "/Users/xudaxing/Desktop/LAIDP_development/twoWay_100M";
+        evaluate_contingencyTable(DemographicModelTools.N_way.TWO_WAY, dir);
     }
 
     /**
@@ -98,7 +100,7 @@ public class Start {
 
         final String[] DIRS = {"001_parameterFile","002_demes","003_simulation","004_runner","log",
                 "005_evaluation"};
-        final String[] SOFTWARE = {"loter","elai","laidp"};
+        final String[] SOFTWARE = {"loter","elai","mosaic","laidp"};
 
         File[] dirsFile = new File[DIRS.length];
         for (int i = 0; i < dirsFile.length; i++) {
