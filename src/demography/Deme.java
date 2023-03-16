@@ -23,15 +23,15 @@ public class Deme {
     /**
      * When multiple ancestors exists, there are two types of events to consider,
      * namely branch event and split event.
-     *
+     * <p>
      * An alternative way of modelling a population split is for the ancestral deme to remain alive after the split.
      * We will refer to this as a branch event, rather than a split event. Because the descendant deme's ancestor
      * exists until 0 generations ago, so we must explicitly provide a start_time for it.
-     *
+     * <p>
      * When involved in split event, ancestral deme are not allowed alive after the split.
      * When a deme has an ancestor, its start_time does not default to .inf.
      * In this case, the start_time for the deme is inherited from the end_time of the ancestor
-     *
+     * <p>
      * With multiple ancestors, the start_time of the descendant deme
      * does not default to the end_time of any of its ancestors.
      * So the start_time must always be specified for a deme with multiple ancestors.
@@ -146,12 +146,11 @@ public class Deme {
 
     @Override
     public String toString() {
-        String sb = "Deme{" + "name='" + name + '\'' +
+        return "Deme{" + "name='" + name + '\'' +
                 ", ancestors=" + ancestors +
                 ", proportions=" + proportions +
                 ", start_time=" + start_time +
                 ", epochs=" + epochs +
                 '}';
-        return sb;
     }
 }
