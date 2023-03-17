@@ -51,11 +51,6 @@ public class LAIDP_runner extends LocalAncestry {
      */
     int threadsNum;
 
-    /**
-     * working dir for single run
-     */
-    File[] workingDir;
-
     public LAIDP_runner(Builder builder){
         this.softPath=builder.softPath;
         this.genotypeMetaData=builder.genotypeMetaData;
@@ -68,15 +63,6 @@ public class LAIDP_runner extends LocalAncestry {
         this.maxSolutionCount=builder.maxSolutionCount;
         this.conjunctionNum=builder.conjunctionNum;
         this.threadsNum=builder.threadsNum;
-        this.makeSubDir();
-    }
-
-    private void makeSubDir(){
-        this.workingDir = new File[genotypeMetaData.genotypeID.length];
-        for (int i = 0; i < genotypeMetaData.genotypeID.length; i++) {
-            this.workingDir[i] = new File(this.outDir, genotypeMetaData.genotypeID[i]);
-            this.workingDir[i].mkdir();
-        }
     }
 
     public void startRun(){
@@ -88,7 +74,7 @@ public class LAIDP_runner extends LocalAncestry {
         for (int i = 0; i < genotypeMetaData.genotypeID.length; i++) {
             this.prepareFile(genotypeMetaData.taxaInfoPath[i], genotypeMetaData.admixedPop[i],
                     genotypeMetaData.nativePop[i], genotypeMetaData.introgressedPop[i],
-                    new File(workingDir[i], genotypeMetaData.genotypeID[i]+".taxaGroup.txt"));
+                    new File(outDir, genotypeMetaData.genotypeID[i]+".taxaGroup.txt"));
         }
     }
 
@@ -144,15 +130,14 @@ public class LAIDP_runner extends LocalAncestry {
             sb.append(genotypeMetaData.genotypePath[i]).append(" ");
             sb.append(this.windowSize).append(" ");
             sb.append(this.stepSize).append(" ");
-            sb.append(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".taxaGroup.txt").getAbsolutePath()).append(" ");
+            sb.append(new File(outDir, genotypeMetaData.genotypeID[i]+".taxaGroup.txt").getAbsolutePath()).append(" ");
             sb.append(this.ancestralAllele).append(" ");
             sb.append(this.conjunctionNum).append(" ");
             sb.append(this.switchCostScore).append(" ");
             sb.append(this.maxSolutionCount).append(" ");
-            sb.append(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".localAnc.txt")).append(" ");
+            sb.append(new File(outDir, genotypeMetaData.genotypeID[i]+".localAnc.txt")).append(" ");
             sb.append(this.threadsNum);
-            int finalI = i;
-            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), workingDir[finalI].getAbsolutePath(),
+            callableList.add(()-> CommandUtils.runOneCommand(sb.toString(), outDir,
                     new File(logFilePath)));
         }
 
@@ -266,7 +251,7 @@ public class LAIDP_runner extends LocalAncestry {
                 }
             }
             for (int i = 0; i < genotypeMetaData.genotypeID.length; i++) {
-                br = IOTool.getReader(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".localAnc.txt"));
+                br = IOTool.getReader(new File(outDir, genotypeMetaData.genotypeID[i]+".localAnc.txt"));
                 br.readLine();
                 while ((line=br.readLine())!=null){
                     temp = PStringUtils.fastSplit(line);
@@ -319,7 +304,7 @@ public class LAIDP_runner extends LocalAncestry {
             for (int i = 0; i < genotypeMetaData.genotypeID.length; i++) {
                 int variantIndex = 0;
                 boolean ancestryValue;
-                br = IOTool.getReader(new File(workingDir[i], genotypeMetaData.genotypeID[i]+".localAnc.txt"));
+                br = IOTool.getReader(new File(outDir, genotypeMetaData.genotypeID[i]+".localAnc.txt"));
                 br.readLine();
                 while ((line=br.readLine())!=null){
                     temp = PStringUtils.fastSplit(line);
