@@ -132,7 +132,7 @@ admixedIndividuals = [indi for indi, pop in enumerate(ts.individuals_population)
 
 introgressionDonorPopulation = pops[2:len(pops)]
 with open(outFile_tracts, "w") as outFileTract:
-    outFileTract.write("AdmixedIndividual\tIntrogressedPopulation\tstart\tEnd\n")
+    outFileTract.write("AdmixedIndividual\tIntrogressedPopulation\tStart\tEnd\n")
     for i in admixedIndividuals:
         tractsList = []
         for donor in introgressionDonorPopulation:
