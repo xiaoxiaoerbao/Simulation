@@ -100,7 +100,7 @@ public class Start {
 
         final String[] DIRS = {"001_parameterFile","002_demes","003_simulation","004_runner","log",
                 "005_evaluation"};
-        final String[] SOFTWARE = {"loter","elai","mosaic","laidp"};
+        final String[] SOFTWARE = {"loter","elai","laidp"};
 
         File[] dirsFile = new File[DIRS.length];
         for (int i = 0; i < dirsFile.length; i++) {
@@ -119,11 +119,11 @@ public class Start {
 
         String simulationMetadataOutFile = new File(dirsFile[0], "simulationMetadata.txt").getAbsolutePath();
 
-        String simulationLogFile = new File(dirsFile[4], "simulation.log").getAbsolutePath();
-        DemographicModelTools.batchRun(nWay, simulationMetadataOutFile, dirsFile[1].getAbsolutePath());
-        Simulation simulation = new Simulation.Builder(simulationMetadataOutFile, simulationLogFile,
-                dirsFile[2].getAbsolutePath()).build();
-        simulation.run_simulation();
+//        String simulationLogFile = new File(dirsFile[4], "simulation.log").getAbsolutePath();
+//        DemographicModelTools.batchRun(nWay, simulationMetadataOutFile, dirsFile[1].getAbsolutePath());
+//        Simulation simulation = new Simulation.Builder(simulationMetadataOutFile, simulationLogFile,
+//                dirsFile[2].getAbsolutePath()).build();
+//        simulation.run_simulation();
 
         SimulationMetadata simulationMetadata = new SimulationMetadata(simulationMetadataOutFile);
 //        double[][][][] actual_values = LocalAncestry.extractLocalAncestry_actualValue(simulationMetadata, dirsFile[2].getAbsolutePath());
@@ -139,19 +139,19 @@ public class Start {
             switch(SOFTWARE[i]) {
                 case "loter":
                     Loter_runner loterRunner = new Loter_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
-                    loterRunner.startRun();
+//                    loterRunner.startRun();
                     software_contingencyTable[i]=loterRunner.contingencyTable_2way_bitset(actual_values);
                     break;
                 case "elai":
                     ELAI_runner elaiRunner = new ELAI_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
-                    elaiRunner.startRun();
+//                    elaiRunner.startRun();
                     software_contingencyTable[i]=elaiRunner.contingencyTable_2way_bitset(actual_values);
                     break;
-                case "mosaic":
-                    Mosaic_runner mosaicRunner = new Mosaic_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
-                    mosaicRunner.startRun();
-                    software_contingencyTable[i] = mosaicRunner.contingencyTable_2way_bitset(actual_values);
-                    break;
+//                case "mosaic":
+//                    Mosaic_runner mosaicRunner = new Mosaic_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
+////                    mosaicRunner.startRun();
+//                    software_contingencyTable[i] = mosaicRunner.contingencyTable_2way_bitset(actual_values);
+//                    break;
                 case "laidp":
                     LAIDP_runner laidpRunner = new LAIDP_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     laidpRunner.startRun();

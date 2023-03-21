@@ -164,7 +164,7 @@ public class LAIDP_runner extends LocalAncestry {
         /**
          * Optional parameters
          */
-        String softPath= "/Users/xudaxing/Software/LAIDP/LAIDP.jar";
+        String softPath= "/Users/xudaxing/Software/LAIDP/LAIDP_2.jar";
         int windowSize = 150;
         int stepSize = 75;
         String ancestralAllele = "simulation";
