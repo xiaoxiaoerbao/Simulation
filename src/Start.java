@@ -188,4 +188,95 @@ public class Start {
         }
 
     }
+
+    /**
+     * Grid search
+     * @param nWay
+     * @param outDir
+     */
+    public static void evaluate_contingencyTable_gridSearch(DemographicModelTools.N_way nWay, String outDir){
+
+        final String[] DIRS = {"001_parameterFile","002_demes","003_simulation","004_runner","log",
+                "005_evaluation"};
+        final int[] conjunctionNum = {0,1,2,3,4,5};
+        final double[] switchCostScore = {1.5,2.5,3.5};
+        final int[] maxSolutionCount = {1,2,4,8,16,32,64,128};
+
+
+        File[] dirsFile = new File[DIRS.length];
+        for (int i = 0; i < dirsFile.length; i++) {
+            dirsFile[i] = new File(outDir, DIRS[i]);
+            dirsFile[i].mkdir();
+        }
+
+        String simulationMetadataOutFile = new File(dirsFile[0], "simulationMetadata.txt").getAbsolutePath();
+
+//        String simulationLogFile = new File(dirsFile[4], "simulation.log").getAbsolutePath();
+//        DemographicModelTools.batchRun(nWay, simulationMetadataOutFile, dirsFile[1].getAbsolutePath());
+//        Simulation simulation = new Simulation.Builder(simulationMetadataOutFile, simulationLogFile,
+//                dirsFile[2].getAbsolutePath()).build();
+//        simulation.run_simulation();
+
+        SimulationMetadata simulationMetadata = new SimulationMetadata(simulationMetadataOutFile);
+//        double[][][][] actual_values = LocalAncestry.extractLocalAncestry_actualValue(simulationMetadata, dirsFile[2].getAbsolutePath());
+        BitSet[][][] actual_values = LocalAncestry.extractLocalAncestry_actualValue_bitset(simulationMetadata,
+                dirsFile[2].getAbsolutePath());
+
+        GenotypeMetaData genotypeMetaData = new GenotypeMetaData(simulationMetadataOutFile, dirsFile[2].getAbsolutePath());
+
+
+        List<int[][][]> software_contingencyTable = new ArrayList<>();
+        List<String> softwareList = new ArrayList<>();
+        File file;
+        LAIDP_runner laidpRunner;
+        String logFile, softwareSubDir;
+        StringBuilder sb = new StringBuilder();
+        for (int value : conjunctionNum) {
+            for (double v : switchCostScore) {
+                for (int i : maxSolutionCount) {
+                    sb.setLength(0);
+                    sb.append("c").append("_").append(value).append("_");
+                    sb.append("s").append("_").append(v).append("_");
+                    sb.append("m").append("_").append(i);
+                    logFile = new File(dirsFile[4], sb + ".log").getAbsolutePath();
+                    file = new File(dirsFile[3], sb.toString());
+                    file.mkdir();
+                    softwareSubDir = file.getAbsolutePath();
+                    laidpRunner = new LAIDP_runner.Builder(genotypeMetaData, logFile, softwareSubDir)
+                            .conjunctionNum(value).switchCostScore(v).maxSolutionCount(i).build();
+                    softwareList.add(sb.toString());
+//                    laidpRunner.startRun();
+                    software_contingencyTable.add(laidpRunner.contingencyTable_2way_bitset(actual_values));
+                }
+            }
+        }
+
+        try (BufferedWriter bw = IOTool.getWriter(new File(dirsFile[5], "evaluation.txt").getAbsolutePath())) {
+            bw.write("DemesID\tSoftware\tAdmixedIndividual\tTruePositive" +
+                    "\tFalseNegative\tFalsePositive\tTrueNegative");
+
+            bw.newLine();
+            String joined, software;
+            for (int i = 0; i < software_contingencyTable.size(); i++) {
+                for (int j = 0; j < software_contingencyTable.get(i).length; j++) {
+                    for (int k = 0; k < software_contingencyTable.get(i)[j].length; k++) {
+                        software = softwareList.get(i);
+                        sb.setLength(0);
+                        sb.append(simulationMetadata.getDemesID()[j]).append("\t");
+                        sb.append(software).append("\t");
+                        sb.append("tsk_").append(k).append("\t");
+                        joined = Joiner.on("\t").join(Ints.asList(software_contingencyTable.get(i)[j][k]));
+                        sb.append(joined);
+                        bw.write(sb.toString());
+                        bw.newLine();
+                    }
+                }
+
+            }
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }
