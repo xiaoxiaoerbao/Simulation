@@ -2,6 +2,9 @@ package evaluation;
 
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Ints;
+import demography.RecombinationMap;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
 import laidp.GenotypeTable;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import simulation.SimulationMetadata;
@@ -42,10 +45,6 @@ public abstract class LocalAncestry {
         return LocalAncestry.contingencyTable_bitset(inferredValue, actual_values);
     }
 
-    public int[][][] contingencyTable_2way_bitset(BitSet[][][] actual_values){
-        BitSet[][][] inferredValue = this.extractLocalAncestry_bitset();
-        return LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
-    }
 
     public double[][] pearsonCorrelation(double[][][][] actual_values){
         double[][][][] inferredValue = this.extractLocalAncestry();
@@ -119,9 +118,17 @@ public abstract class LocalAncestry {
 
     /**
      *
-     * @param inferredValue
-     * @param actualValue
-     * @return contingencyTable, dim1 is different run, dim2 is admixed taxon index, dim is one of
+     * @param inferredValue inferredValue
+     * dim1 is different run,
+     * dim2 is different haplotype
+     * dim3 is source population,  first all introgressed populations, then native population
+     * dim4 is variants
+     * @param actualValue actualValue
+     * dim1 is different run,
+     * dim2 is different haplotype,
+     * dim3 is source population (ordered by introgressed, native),
+     * dim4 is variants
+     * @return contingencyTable, dim1 is different run, dim2 is admixed taxon index, dim3 is one of
      * [count_truePositive, count_falseNegative, count_falsePositive, count_trueNegative]
      */
     public static int[][][] contingencyTable(double[][][][] inferredValue, double[][][][] actualValue){
@@ -163,8 +170,8 @@ public abstract class LocalAncestry {
 
     /**
      *
-     * @param inferredValue
-     * @param actualValue
+     * @param inferredValue dim1 is different run, dim2 is different haplotype, dim3 is source population, dim4 is variants
+     * @param actualValue dim1 is different run, dim2 is different haplotype, dim3 is source population, dim4 is variants
      * @return contingencyTable, dim1 is different run, dim2 is admixed taxon index, dim is one of
      * [count_truePositive, count_falseNegative, count_falsePositive, count_trueNegative]
      */
@@ -209,8 +216,8 @@ public abstract class LocalAncestry {
 
     /**
      *
-     * @param inferredValue
-     * @param actualValue
+     * @param inferredValue dim1 is different run, dim2 is different haplotype, dim3 is source population, dim4 is variants
+     * @param actualValue dim1 is different run, dim2 is different haplotype, dim3 is source population, dim4 is variants
      * @return contingencyTable, dim1 is different run, dim2 is admixed taxon index, dim is one of
      * [count_truePositive, count_falseNegative, count_falsePositive, count_trueNegative]
      */
@@ -262,6 +269,188 @@ public abstract class LocalAncestry {
         }
         return contingencyTable;
     }
+
+
+    /**
+     *
+     * @param simulationMetadata simulationMetadata
+     * @param simulationDir simulationDir
+     * @return actualLocalAncestryTractSize, dim1 is different run, dim2 is tract size in log cM
+     */
+    public static DoubleList[] extractLocalAncestry_actualTractSize_logcM(SimulationMetadata simulationMetadata,
+                                                                          String simulationDir){
+        String[] demesID = simulationMetadata.getDemesID();
+        DoubleList[] tractSize = new DoubleList[demesID.length];
+        for (int i = 0; i < demesID.length; i++) {
+            tractSize[i] = new DoubleArrayList();
+        }
+        File tractFile;
+        BufferedReader br;
+        File recombinationMapFile;
+        try {
+            String line;
+            List<String> temp;
+            int start, end;
+            double mapDistance;
+            RecombinationMap recombinationMap;
+            for (int i = 0; i < demesID.length; i++) {
+                tractFile = new File(simulationDir, demesID[i]+".tract");
+                recombinationMapFile = new File(simulationDir, demesID[i]+".recombinationMap");
+                recombinationMap = new RecombinationMap(recombinationMapFile);
+                br = IOTool.getReader(tractFile);
+                br.readLine();
+                while ((line=br.readLine())!=null){
+                    temp =PStringUtils.fastSplit(line);
+                    start = Integer.parseInt(temp.get(2));
+                    end = Integer.parseInt(temp.get(3));
+                    mapDistance = recombinationMap.getDistance(start, end);
+                    tractSize[i].add(Math.log(mapDistance));
+                }
+                br.close();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return tractSize;
+    }
+
+
+    /**
+     *
+     * @param inferredValue dim1 is different run, dim2 is different haplotype, dim3 is source population,  first all
+     *                     introgressed populations, then native population, dim4 is variants
+     * @param simulationMetadata simulationMetadata
+     * @param simulationDir simulationDir
+     * @return inferredLocalAncestryTract, dim1 is different run, dim2 is different haplotype, dim3 is source
+     * population, first all introgressed populations, then native population, dim4 is different tracts, each tract
+     * was represented by a int[2].
+     * int[0] means start position (inclusive)
+     * int[1] means end position (inclusive)
+     */
+    public static List<int[]>[][][] extractLocalAncestry_inferredTract(BitSet[][][] inferredValue,
+                                                                          SimulationMetadata simulationMetadata, String simulationDir){
+        int runNum = inferredValue.length;
+        int admixedTaxaNum = inferredValue[0].length;
+        int sourceNum = inferredValue[0][0].length;
+        int variantNum;
+        int count;
+        List<int[]>[][][] localTract = new List[runNum][][];
+        for (int runIndex = 0; runIndex < runNum; runIndex++) {
+            localTract[runIndex] = new List[admixedTaxaNum][];
+            for (int admixedTaxonIndex = 0; admixedTaxonIndex < admixedTaxaNum; admixedTaxonIndex++) {
+                localTract[runIndex][admixedTaxonIndex] = new List[sourceNum-1];
+                for (int sourceIndex = 0; sourceIndex < sourceNum-1; sourceIndex++) {
+                    localTract[runIndex][admixedTaxonIndex][sourceIndex] = new ArrayList<>();
+                }
+            }
+        }
+        File genotypeFile;
+        GenotypeTable genotypeTable;
+        for (int runIndex = 0; runIndex < runNum; runIndex++) {
+            variantNum = LocalAncestry.variantNum[runIndex];
+            genotypeFile = new File(simulationDir, simulationMetadata.getDemesID()[runIndex]+".vcf");
+            genotypeTable = new GenotypeTable(genotypeFile.getAbsolutePath());
+            for (int admixedTaxonIndex = 0; admixedTaxonIndex < admixedTaxaNum; admixedTaxonIndex++) {
+                for (int sourceIndex = 0; sourceIndex < sourceNum; sourceIndex++) {
+                    if (sourceIndex == (sourceNum-1)) continue; // native source continue
+                    count = 0;
+                    int start = -1; // inclusive
+                    int end; // exclusive
+                    int[] startPos_endPos;
+                    for (int variantIndex = 0; variantIndex < variantNum; variantIndex++) {
+                        if (inferredValue[runIndex][admixedTaxonIndex][sourceIndex].get(variantIndex)){
+                            count++;
+                            if (start < 0){
+                                start = variantIndex;
+                            }
+                        }else {
+                            if (count > 1){
+                                end = start + count; // exclusive
+                                startPos_endPos = new int[2];
+                                startPos_endPos[0] = genotypeTable.getPosition(start); // inclusive
+                                startPos_endPos[1] = genotypeTable.getPosition(end -1); // inclusive
+                                localTract[runIndex][admixedTaxonIndex][sourceIndex].add(startPos_endPos);
+                            }
+                            count = 0;
+                            start = -1;
+                        }
+                    }
+                    if (count > 1){
+                        end = start + count; // exclusive
+                        startPos_endPos = new int[2];
+                        startPos_endPos[0] = genotypeTable.getPosition(start); // inclusive
+                        startPos_endPos[1] = genotypeTable.getPosition(end -1); // inclusive
+                        localTract[runIndex][admixedTaxonIndex][sourceIndex].add(startPos_endPos);
+                    }
+                }
+            }
+        }
+
+        return localTract;
+    }
+
+
+    /**
+     *
+     * @param inferredTract inferredLocalAncestryTract, dim1 is different run, dim2 is different haplotype, dim3 is
+     *                      source population, first all introgressed populations, then native population, dim4 is
+     *                      different tracts, each tract was represented by a int[2].
+     *                      int[0] means start position (inclusive)
+     *                      int[1] means end position (inclusive)
+     * @param simulationMetadata simulationMetadata
+     * @param simulationDir simulationDir
+     * @return inferred tract size in log-transformed cM units.
+     * dim1 is different run, dim2 is log-transformed tract size in cM units
+     */
+    public static DoubleList[] extractLocalAncestry_inferredTractSize_logcM(List<int[]>[][][] inferredTract,
+                                                                            SimulationMetadata simulationMetadata, String simulationDir){
+        int runNum = inferredTract.length;
+        int admixedTaxaNum = inferredTract[0].length;
+        int sourceNum = inferredTract[0][0].length;
+        DoubleList[] tractSize_log = new DoubleList[runNum];
+        for (int i = 0; i < runNum; i++) {
+            tractSize_log[i] = new DoubleArrayList();
+        }
+        File recombinationMapFile;
+        RecombinationMap recombinationMap;
+        int startPos, endPos;
+        double mapDistance;
+        for (int runIndex = 0; runIndex < runNum; runIndex++) {
+            recombinationMapFile = new File(simulationDir, simulationMetadata.getDemesID()[runIndex]+ ".recombinationMap");
+            recombinationMap = new RecombinationMap(recombinationMapFile);
+            for (int admixedTaxonIndex = 0; admixedTaxonIndex < admixedTaxaNum; admixedTaxonIndex++) {
+                for (int sourceIndex = 0; sourceIndex < sourceNum; sourceIndex++) {
+                    int tractNum = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].size();
+                    for (int tractIndex = 0; tractIndex < tractNum; tractIndex++) {
+                        startPos = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[0];
+                        endPos = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[1];
+                        mapDistance = recombinationMap.getDistance(startPos, endPos);
+                        tractSize_log[runIndex].add(Math.log(mapDistance));
+                    }
+
+                }
+            }
+        }
+        return tractSize_log;
+    }
+
+
+    /**
+     * @param inferredValue_tractSize inferred tract size in log-transformed cM units.
+     *                                dim1 is different run, dim2 is tract size
+     * @param actualValue_tractSize actual tract size in log-transformed cM units.
+     *                              dim1 is different run, dim2 is tract size in log cM
+     * @return KLDivergence dim1 is different run
+     */
+    public static double[] calculateKLDivergence(DoubleList[] inferredValue_tractSize, DoubleList[] actualValue_tractSize){
+        double[] klDivergence = new double[actualValue_tractSize.length];
+        for (int i = 0; i < klDivergence.length; i++) {
+            klDivergence[i] = KLDivergence.calculate_KLDivergence(actualValue_tractSize[i].toDoubleArray(),
+                    inferredValue_tractSize[i].toDoubleArray(), 30);
+        }
+        return klDivergence;
+    }
+
 
     /**
      *
