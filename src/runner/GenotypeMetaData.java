@@ -18,16 +18,35 @@ public class GenotypeMetaData {
 
     String[] genotypePath;
 
+    /**
+     * simulated taxaInfo file
+     * Taxon	Population	PopulationName
+     * tsk_0	4	E
+     * tsk_1	4	E
+     * tsk_2	4	E
+     */
     String[] taxaInfoPath;
 
     int[] nWayAdmixture;
 
+    /**
+     * admixed population name, e.g., E
+     */
     String[] admixedPop;
 
+    /**
+     * native population name, e.g., D
+     */
     String[] nativePop;
 
+    /**
+     * introgressed population name list, e.g., C
+     */
     List<String>[] introgressedPop;
 
+    /**
+     * introgressed population name list, and then native population name
+     */
     List<String>[] referencePopList;
 
     int[] timeSinceAdmixture;   // -1 means unknown
@@ -38,8 +57,8 @@ public class GenotypeMetaData {
 
     /**
      * time since admixture is set to -1 by default
-     * @param simulationMetadataPath
-     * @param simulationOutDir
+     * @param simulationMetadataPath path of simulationMetadata
+     * @param simulationOutDir simulationOutDir
      */
     public GenotypeMetaData(String simulationMetadataPath, String simulationOutDir){
         SimulationMetadata simulationMetadata = new SimulationMetadata(simulationMetadataPath);
@@ -64,7 +83,7 @@ public class GenotypeMetaData {
         Arrays.fill(timeSinceAdmixture, -1);
         this.timeSinceAdmixture=timeSinceAdmixture;
         this.chrID=simulationMetadata.getChrID();
-        List[] referencePopList = new List[genotypeID.length];
+        List<String>[] referencePopList = new List[genotypeID.length];
         for (int i = 0; i < referencePopList.length; i++) {
             referencePopList[i] = new ArrayList<>();
             referencePopList[i].addAll(simulationMetadata.getIntrogressedPop()[i]);
@@ -75,7 +94,7 @@ public class GenotypeMetaData {
 
     /**
      * time since admixture was supplied by genotypePathFile
-     * @param genotypePathFile
+     * @param genotypePathFile path of genotypeFile
      */
     public GenotypeMetaData(String genotypePathFile){
         List<String> genotypeIDList = new ArrayList<>();
@@ -115,7 +134,7 @@ public class GenotypeMetaData {
             this.timeSinceAdmixture = timeSinceAdmixture.toIntArray();
             this.chrID=chrIDList.toIntArray();
             this.recombinationMap=recombinationMap.toArray(new String[0]);
-            List[] referencePopList = new List[genotypeID.length];
+            List<String>[] referencePopList = new List[genotypeID.length];
             for (int i = 0; i < referencePopList.length; i++) {
                 referencePopList[i] = new ArrayList<>();
                 referencePopList[i].addAll(introgressedPopList.get(i));

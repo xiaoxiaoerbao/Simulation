@@ -16,12 +16,37 @@ public class SimulationMetadata {
 
     String[] demesID;
     String[] demesPath;
+
+    /**
+     * admixed population name, e.g., E
+     */
     String[] admixedPop;
+
+    /**
+     * admixed population sample size, e.g., 30
+     */
     int[] admixedPopSampleSize;
+
+    /**
+     * native population name, e.g., D
+     */
     String[] nativePop;
+
+    /**
+     * native population sample size, e.g., 30
+     */
     int[] nativePopSampleSize;
-    List[] introgressedPop;
+
+    /**
+     * introgressed population name list, e.g., C
+     */
+    List<String>[] introgressedPop;
+
+    /**
+     * introgressed population sample size, e.g., 30
+     */
     IntList[] introgressedPopSampleSize;
+
     int[] sequenceLen;
     double[] recombinationRate;
     double[] mutationRate;
@@ -114,7 +139,7 @@ public class SimulationMetadata {
         return introgressedPopSampleSize;
     }
 
-    public List[] getIntrogressedPop() {
+    public List<String>[] getIntrogressedPop() {
         return introgressedPop;
     }
 
