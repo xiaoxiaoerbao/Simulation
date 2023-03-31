@@ -281,10 +281,11 @@ public class DemographicModelTools {
         int[] sampleSize = {30,30,30};
         int equilibriumPopulationSize = 10000;
         int[] splitEventTime_0 = {10000};
-        int[] splitEventTime_1 = {8000};
-        double[] ratio_admixture_divergence = {0.1, 0.2, 0.4, 0.8};
+        int[] splitEventTime_1 = {2000, 3000, 4000};
+//        double[] ratio_admixture_divergence = {0.1, 0.2, 0.4, 0.8};
+        int[] admixture_time = {500, 700, 900, 1100};
         double[] admixtureProportion = {0.1};
-        int sequenceLength = 100_000_000;
+        int sequenceLength = 10_000_000;
         double recombination_rate = 1e-8;
         double mutation_rate = 1e-8; // 7.1e-9
 
@@ -304,12 +305,12 @@ public class DemographicModelTools {
             int count= 1;
             for (int j : splitEventTime_0) {
                 for (int k : splitEventTime_1) {
-                    for (double value : ratio_admixture_divergence) {
+                    for (double value : admixture_time) {
                         for (double v : admixtureProportion) {
                             splitEventTime = new int[2];
                             splitEventTime[0] = j;
                             splitEventTime[1] = k;
-                            admixtureTime = k * value;
+                            admixtureTime = value;
                             divergenceTime0 = j;
                             divergenceTime1 = k;
                             demographicModel = DemographicModelTools.twoWayBuilder_equilibriumPopulation(splitEventTime,
