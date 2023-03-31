@@ -8,6 +8,8 @@ import runner.*;
 import simulation.Simulation;
 import simulation.SimulationMetadata;
 import utils.IOTool;
+import utils.MD5;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +21,9 @@ import java.util.stream.IntStream;
 public class Start {
 
     public static void main(String[] args) {
-//        MD5.checkTwoFileMD5("/Users/xudaxing/Desktop/LAIDP_development/twoWay_ancient_test/005_evaluation/contingencyTable_0.txt","/Users/xudaxing/Desktop/LAIDP_development/twoWay_ancient_test/005_evaluation/contingencyTable.txt");
-        String dir = "/Users/xudaxing/Desktop/LAIDP_development/twoWay_ancient_test";
+//        MD5.checkTwoFileMD5("/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/contingencyTable2.txt","/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/contingencyTable.txt");
+        String dir = "/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2";
         evaluate_contingencyTable(DemographicModelTools.N_way.TWO_WAY, dir);
-
     }
 
     /**
@@ -131,9 +132,12 @@ public class Start {
 //        double[][][][] actual_values = LocalAncestry.extractLocalAncestry_actualValue(simulationMetadata, dirsFile[2].getAbsolutePath());
         BitSet[][][] actual_values = LocalAncestry.extractLocalAncestry_actualValue_bitset(simulationMetadata,
                 dirsFile[2].getAbsolutePath());
-        DoubleList[] actual_tract = LocalAncestry.extractLocalAncestry_actualTractSize_logcM(simulationMetadata, dirsFile[2].getAbsolutePath());
+        List<int[]>[][][] actual_tract = LocalAncestry.extractLocalAncestry_TractSize(actual_values,
+                simulationMetadata, dirsFile[2].getAbsolutePath());
+        DoubleList[] actual_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(actual_tract,
+                simulationMetadata, dirsFile[2].getAbsolutePath());
         BitSet[][][] inferredValue;
-        DoubleList[] inferred_tract;
+        DoubleList[] inferred_tract_logcM;
 
         GenotypeMetaData genotypeMetaData = new GenotypeMetaData(simulationMetadataOutFile, dirsFile[2].getAbsolutePath());
         int[][][][] software_contingencyTable = new int[SOFTWARE.length][][][];
@@ -148,44 +152,44 @@ public class Start {
                     loterRunner.startRun();
                     inferredValue = loterRunner.extractLocalAncestry_bitset();
                     software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
-                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_inferredTract(inferredValue,
+                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    inferred_tract = LocalAncestry.extractLocalAncestry_inferredTractSize_logcM(software_inferredTract[i],
+                    inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
                                     simulationMetadata, dirsFile[2].getAbsolutePath());
-                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract, actual_tract);
+                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract_logcM, actual_tract_logcM);
                     break;
                 case "elai":
                     ELAI_runner elaiRunner = new ELAI_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     elaiRunner.startRun();
                     inferredValue = elaiRunner.extractLocalAncestry_bitset();
                     software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
-                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_inferredTract(inferredValue,
+                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    inferred_tract = LocalAncestry.extractLocalAncestry_inferredTractSize_logcM(software_inferredTract[i],
+                    inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract, actual_tract);
+                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract_logcM, actual_tract_logcM);
                     break;
                 case "mosaic":
                     Mosaic_runner mosaicRunner = new Mosaic_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     mosaicRunner.startRun();
                     inferredValue = mosaicRunner.extractLocalAncestry_bitset();
                     software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
-                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_inferredTract(inferredValue,
+                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    inferred_tract = LocalAncestry.extractLocalAncestry_inferredTractSize_logcM(software_inferredTract[i],
+                    inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract, actual_tract);
+                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract_logcM, actual_tract_logcM);
                     break;
                 case "laidp":
                     LAIDP_runner laidpRunner = new LAIDP_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     laidpRunner.startRun();
                     inferredValue = laidpRunner.extractLocalAncestry_bitset();
                     software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
-                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_inferredTract(inferredValue,
+                    software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    inferred_tract = LocalAncestry.extractLocalAncestry_inferredTractSize_logcM(software_inferredTract[i],
+                    inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
                             simulationMetadata, dirsFile[2].getAbsolutePath());
-                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract, actual_tract);
+                    klDivergence[i] = LocalAncestry.calculateKLDivergence(inferred_tract_logcM, actual_tract_logcM);
                 default:
                     break;
             }
@@ -193,7 +197,8 @@ public class Start {
 
         try (BufferedWriter bw_contingencyTable = IOTool.getWriter(new File(dirsFile[5], "contingencyTable.txt").getAbsolutePath());
              BufferedWriter bw_KLDivergence = IOTool.getWriter(new File(dirsFile[5], "KLDivergence.txt"));
-             BufferedWriter bw_inferredTract = IOTool.getWriter(new File(dirsFile[5], "inferredTract.txt"))) {
+             BufferedWriter bw_inferredTract = IOTool.getWriter(new File(dirsFile[5], "inferredTract.txt"));
+             BufferedWriter bw_simulatedTract = IOTool.getWriter(new File(dirsFile[5], "simulatedTract.txt"))) {
             bw_contingencyTable.write("DemesID\tSoftware\tAdmixedIndividual\tTruePositive" +
                     "\tFalseNegative\tFalsePositive\tTrueNegative");
             bw_contingencyTable.newLine();
@@ -201,6 +206,8 @@ public class Start {
             bw_KLDivergence.newLine();
             bw_inferredTract.write("DemesID\tSoftware\tAdmixedIndividual\tIntrogressedPopulation\tStart\tEnd");
             bw_inferredTract.newLine();
+            bw_simulatedTract.write("DemesID\tSoftware\tAdmixedIndividual\tIntrogressedPopulation\tStart\tEnd");
+            bw_simulatedTract.newLine();
             StringBuilder sb = new StringBuilder();
             String joined, admixedPop;
             List<String> admixedTaxaList;
@@ -238,6 +245,22 @@ public class Start {
                                 bw_inferredTract.write(sb.toString());
                                 bw_inferredTract.newLine();
                             }
+
+                            if (softwareIndex != 0) continue;
+                            introgressedWindowNum = actual_tract[runIndex][admixedTaxonIndex][introgressedSourceIndex].size();
+                            for (int introgressedWindowIndex = 0; introgressedWindowIndex < introgressedWindowNum; introgressedWindowIndex++) {
+                                // actualTract
+                                sb.setLength(0);
+                                sb.append(simulationMetadata.getDemesID()[runIndex]).append("\t");
+                                sb.append("simulated").append("\t");
+                                sb.append(admixedTaxaList.get(admixedTaxonIndex)).append("\t");
+                                sb.append(Source.getInstanceFromIndex(introgressedSourceIndex+1).get().name()).append("\t");
+                                sb.append(actual_tract[runIndex][admixedTaxonIndex][introgressedSourceIndex].get(introgressedWindowIndex)[0]).append("\t");
+                                sb.append(actual_tract[runIndex][admixedTaxonIndex][introgressedSourceIndex].get(introgressedWindowIndex)[1]);
+                                bw_simulatedTract.write(sb.toString());
+                                bw_simulatedTract.newLine();
+                            }
+
                         }
                     }
                     sb.setLength(0);
@@ -251,6 +274,7 @@ public class Start {
             bw_contingencyTable.flush();
             bw_KLDivergence.flush();
             bw_inferredTract.flush();
+            bw_simulatedTract.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
