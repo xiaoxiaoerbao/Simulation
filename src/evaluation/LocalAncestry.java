@@ -273,65 +273,21 @@ public abstract class LocalAncestry {
 
     /**
      *
-     * @param simulationMetadata simulationMetadata
-     * @param simulationDir simulationDir
-     * @return actualLocalAncestryTractSize, dim1 is different run, dim2 is tract size in log cM
-     */
-    public static DoubleList[] extractLocalAncestry_actualTractSize_logcM(SimulationMetadata simulationMetadata,
-                                                                          String simulationDir){
-        String[] demesID = simulationMetadata.getDemesID();
-        DoubleList[] tractSize = new DoubleList[demesID.length];
-        for (int i = 0; i < demesID.length; i++) {
-            tractSize[i] = new DoubleArrayList();
-        }
-        File tractFile;
-        BufferedReader br;
-        File recombinationMapFile;
-        try {
-            String line;
-            List<String> temp;
-            int start, end;
-            double mapDistance;
-            RecombinationMap recombinationMap;
-            for (int i = 0; i < demesID.length; i++) {
-                tractFile = new File(simulationDir, demesID[i]+".tract");
-                recombinationMapFile = new File(simulationDir, demesID[i]+".recombinationMap");
-                recombinationMap = new RecombinationMap(recombinationMapFile);
-                br = IOTool.getReader(tractFile);
-                br.readLine();
-                while ((line=br.readLine())!=null){
-                    temp =PStringUtils.fastSplit(line);
-                    start = Integer.parseInt(temp.get(2));
-                    end = Integer.parseInt(temp.get(3));
-                    mapDistance = recombinationMap.getDistance(start, end);
-                    tractSize[i].add(Math.log(mapDistance));
-                }
-                br.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return tractSize;
-    }
-
-
-    /**
-     *
-     * @param inferredValue dim1 is different run, dim2 is different haplotype, dim3 is source population,  first all
+     * @param inferredValue_or_actualValue dim1 is different run, dim2 is different haplotype, dim3 is source population,  first all
      *                     introgressed populations, then native population, dim4 is variants
      * @param simulationMetadata simulationMetadata
      * @param simulationDir simulationDir
-     * @return inferredLocalAncestryTract, dim1 is different run, dim2 is different haplotype, dim3 is source
+     * @return tract size, dim1 is different run, dim2 is different haplotype, dim3 is source
      * population, first all introgressed populations, then native population, dim4 is different tracts, each tract
      * was represented by a int[2].
      * int[0] means start position (inclusive)
      * int[1] means end position (inclusive)
      */
-    public static List<int[]>[][][] extractLocalAncestry_inferredTract(BitSet[][][] inferredValue,
-                                                                          SimulationMetadata simulationMetadata, String simulationDir){
-        int runNum = inferredValue.length;
-        int admixedTaxaNum = inferredValue[0].length;
-        int sourceNum = inferredValue[0][0].length;
+    public static List<int[]>[][][] extractLocalAncestry_TractSize(BitSet[][][] inferredValue_or_actualValue,
+                                                                   SimulationMetadata simulationMetadata, String simulationDir){
+        int runNum = inferredValue_or_actualValue.length;
+        int admixedTaxaNum = inferredValue_or_actualValue[0].length;
+        int sourceNum = inferredValue_or_actualValue[0][0].length;
         int variantNum;
         int count;
         List<int[]>[][][] localTract = new List[runNum][][];
@@ -358,7 +314,7 @@ public abstract class LocalAncestry {
                     int end; // exclusive
                     int[] startPos_endPos;
                     for (int variantIndex = 0; variantIndex < variantNum; variantIndex++) {
-                        if (inferredValue[runIndex][admixedTaxonIndex][sourceIndex].get(variantIndex)){
+                        if (inferredValue_or_actualValue[runIndex][admixedTaxonIndex][sourceIndex].get(variantIndex)){
                             count++;
                             if (start < 0){
                                 start = variantIndex;
@@ -392,21 +348,21 @@ public abstract class LocalAncestry {
 
     /**
      *
-     * @param inferredTract inferredLocalAncestryTract, dim1 is different run, dim2 is different haplotype, dim3 is
-     *                      source population, first all introgressed populations, then native population, dim4 is
-     *                      different tracts, each tract was represented by a int[2].
-     *                      int[0] means start position (inclusive)
-     *                      int[1] means end position (inclusive)
+     * @param tractSize inferredLocalAncestryTract or actualLocalAncestryTract, dim1 is different run, dim2 is
+     *                  different haplotype, dim3 is source population, first all introgressed populations, then
+     *                  native population, dim4 is different tracts, each tract was represented by a int[2].
+     *                  int[0] means start position (inclusive)
+     *                  int[1] means end position (inclusive)
      * @param simulationMetadata simulationMetadata
      * @param simulationDir simulationDir
-     * @return inferred tract size in log-transformed cM units.
+     * @return tract size in log-transformed cM units.
      * dim1 is different run, dim2 is log-transformed tract size in cM units
      */
-    public static DoubleList[] extractLocalAncestry_inferredTractSize_logcM(List<int[]>[][][] inferredTract,
-                                                                            SimulationMetadata simulationMetadata, String simulationDir){
-        int runNum = inferredTract.length;
-        int admixedTaxaNum = inferredTract[0].length;
-        int sourceNum = inferredTract[0][0].length;
+    public static DoubleList[] transformTractSizeTo_logcM(List<int[]>[][][] tractSize,
+                                                          SimulationMetadata simulationMetadata, String simulationDir){
+        int runNum = tractSize.length;
+        int admixedTaxaNum = tractSize[0].length;
+        int sourceNum = tractSize[0][0].length;
         DoubleList[] tractSize_log = new DoubleList[runNum];
         for (int i = 0; i < runNum; i++) {
             tractSize_log[i] = new DoubleArrayList();
@@ -420,10 +376,10 @@ public abstract class LocalAncestry {
             recombinationMap = new RecombinationMap(recombinationMapFile);
             for (int admixedTaxonIndex = 0; admixedTaxonIndex < admixedTaxaNum; admixedTaxonIndex++) {
                 for (int sourceIndex = 0; sourceIndex < sourceNum; sourceIndex++) {
-                    int tractNum = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].size();
+                    int tractNum = tractSize[runIndex][admixedTaxonIndex][sourceIndex].size();
                     for (int tractIndex = 0; tractIndex < tractNum; tractIndex++) {
-                        startPos = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[0];
-                        endPos = inferredTract[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[1];
+                        startPos = tractSize[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[0];
+                        endPos = tractSize[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[1];
                         mapDistance = recombinationMap.getDistance(startPos, endPos);
                         tractSize_log[runIndex].add(Math.log(mapDistance));
                     }
