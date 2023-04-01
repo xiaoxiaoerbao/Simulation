@@ -59,10 +59,14 @@ public class Epoch {
     public void setEnd_size(int end_size) {
         this.end_size = end_size;
     }
+
     @Override
     public String toString() {
-        return "Epoch{" + "start_size=" + start_size +
-                ", end_time=" + end_time +
-                '}';
+        final StringBuilder sb = new StringBuilder("Epoch{");
+        sb.append("start_size=").append(start_size);
+        sb.append(", end_time=").append(end_time);
+        sb.append(", end_size=").append(end_size);
+        sb.append('}');
+        return sb.toString();
     }
 }
