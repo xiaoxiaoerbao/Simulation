@@ -1,5 +1,6 @@
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Ints;
+import demography.DemographicModel;
 import demography.DemographicModelTools;
 import evaluation.LocalAncestry;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -21,9 +22,10 @@ import java.util.stream.IntStream;
 public class Start {
 
     public static void main(String[] args) {
-//        MD5.checkTwoFileMD5("/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/contingencyTable2.txt","/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/contingencyTable.txt");
-        String dir = "/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2";
-        evaluate_contingencyTable(DemographicModelTools.N_way.TWO_WAY, dir);
+//        MD5.checkTwoFileMD5("/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/extend1/simulatedTract.txt","/Users/xudaxing/Desktop/LAIDP_development/two_way_ancient_test2/005_evaluation/extend1_ILS/simulatedTract.txt");
+        String dir = "/Users/xudaxing/Desktop/LAIDP_development/temp";
+//        evaluate_contingencyTable(DemographicModelTools.N_way.TWO_WAY, dir);
+        evaluate_contingencyTable(DemographicModelTools.N_way.THREE_WAY, dir);
     }
 
     /**
@@ -134,16 +136,16 @@ public class Start {
                 dirsFile[2].getAbsolutePath());
         List<int[]>[][][] actual_tract = LocalAncestry.extractLocalAncestry_TractSize(actual_values,
                 simulationMetadata, dirsFile[2].getAbsolutePath());
-        DoubleList[] actual_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(actual_tract,
+        DoubleList[][] actual_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(actual_tract,
                 simulationMetadata, dirsFile[2].getAbsolutePath());
         BitSet[][][] inferredValue;
-        DoubleList[] inferred_tract_logcM;
+        DoubleList[][] inferred_tract_logcM;
 
         GenotypeMetaData genotypeMetaData = new GenotypeMetaData(simulationMetadataOutFile, dirsFile[2].getAbsolutePath());
         int[][][][] software_contingencyTable = new int[SOFTWARE.length][][][];
         List<int[]>[][][][] software_inferredTract = new List[SOFTWARE.length][][][];
 
-        double[][] klDivergence = new double[SOFTWARE.length][];
+        double[][][] klDivergence = new double[SOFTWARE.length][][];
 
         for (int i = 0; i < SOFTWARE.length; i++) {
             switch(SOFTWARE[i]) {
@@ -151,7 +153,8 @@ public class Start {
                     Loter_runner loterRunner = new Loter_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     loterRunner.startRun();
                     inferredValue = loterRunner.extractLocalAncestry_bitset();
-                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+//                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+                    software_contingencyTable[i]=LocalAncestry.contingencyTable_bitset(inferredValue, actual_values);
                     software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
                     inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
@@ -162,7 +165,8 @@ public class Start {
                     ELAI_runner elaiRunner = new ELAI_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     elaiRunner.startRun();
                     inferredValue = elaiRunner.extractLocalAncestry_bitset();
-                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+//                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+                    software_contingencyTable[i]=LocalAncestry.contingencyTable_bitset(inferredValue, actual_values);
                     software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
                     inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
@@ -173,7 +177,8 @@ public class Start {
                     Mosaic_runner mosaicRunner = new Mosaic_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     mosaicRunner.startRun();
                     inferredValue = mosaicRunner.extractLocalAncestry_bitset();
-                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+//                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+                    software_contingencyTable[i]=LocalAncestry.contingencyTable_bitset(inferredValue, actual_values);
                     software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
                     inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
@@ -184,7 +189,8 @@ public class Start {
                     LAIDP_runner laidpRunner = new LAIDP_runner.Builder(genotypeMetaData, logFiles[i], softwareSubDir[i]).build();
                     laidpRunner.startRun();
                     inferredValue = laidpRunner.extractLocalAncestry_bitset();
-                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+//                    software_contingencyTable[i]=LocalAncestry.contingencyTable_2way_bitset(inferredValue, actual_values);
+                    software_contingencyTable[i]=LocalAncestry.contingencyTable_bitset(inferredValue, actual_values);
                     software_inferredTract[i] = LocalAncestry.extractLocalAncestry_TractSize(inferredValue,
                             simulationMetadata, dirsFile[2].getAbsolutePath());
                     inferred_tract_logcM = LocalAncestry.transformTractSizeTo_logcM(software_inferredTract[i],
@@ -202,7 +208,7 @@ public class Start {
             bw_contingencyTable.write("DemesID\tSoftware\tAdmixedIndividual\tTruePositive" +
                     "\tFalseNegative\tFalsePositive\tTrueNegative");
             bw_contingencyTable.newLine();
-            bw_KLDivergence.write("DemesID\tSoftware\tKLDivergence");
+            bw_KLDivergence.write("DemesID\tSoftware\tIntrogressedPopulation\tKLDivergence");
             bw_KLDivergence.newLine();
             bw_inferredTract.write("DemesID\tSoftware\tAdmixedIndividual\tIntrogressedPopulation\tStart\tEnd");
             bw_inferredTract.newLine();
@@ -263,12 +269,16 @@ public class Start {
 
                         }
                     }
-                    sb.setLength(0);
-                    sb.append(simulationMetadata.getDemesID()[runIndex]).append("\t");
-                    sb.append(SOFTWARE[softwareIndex]).append("\t");
-                    sb.append(klDivergence[softwareIndex][runIndex]);
-                    bw_KLDivergence.write(sb.toString());
-                    bw_KLDivergence.newLine();
+
+                    for (int introgressedSourceIndex = 0; introgressedSourceIndex < introgressedSourceNum; introgressedSourceIndex++) {
+                        sb.setLength(0);
+                        sb.append(simulationMetadata.getDemesID()[runIndex]).append("\t");
+                        sb.append(SOFTWARE[softwareIndex]).append("\t");
+                        sb.append(Source.getInstanceFromIndex(introgressedSourceIndex+1).get().name()).append("\t");
+                        sb.append(klDivergence[softwareIndex][runIndex][introgressedSourceIndex]);
+                        bw_KLDivergence.write(sb.toString());
+                        bw_KLDivergence.newLine();
+                    }
                 }
             }
             bw_contingencyTable.flush();
