@@ -220,8 +220,8 @@ public class DemographicModelTools {
         int startSize = epoch0.start_size;
         int endTime = epoch0.end_time;
         epoch0.setEnd_time(startTime_bottleneck);
-        epoch0.setEnd_size(populationSize_bottleneck);
-        Epoch epoch1 = new Epoch(populationSize_bottleneck, endTime_bottleneck, startSize);
+        epoch0.setEnd_size(startSize);
+        Epoch epoch1 = new Epoch(populationSize_bottleneck, endTime_bottleneck, populationSize_bottleneck);
         Epoch epoch2 = new Epoch(startSize, endTime, startSize);
         List<Epoch> epochList= new ArrayList<>();
         epochList.add(epoch0);
@@ -382,28 +382,16 @@ public class DemographicModelTools {
         int equilibriumPopulationSize = 10000;
         int[] splitEventTime_0 = {10000}; // D
         int[] splitEventTime_1 = {8000}; // E
-        int[] splitEventTime_2 = {500};  // F and G
-        double[] ratio_admixture_divergence_0 = {0.4, 0.3}; // D
-        double[] ratio_admixture_divergence_1 = {0.2, 0.1}; // E
-        double[] admixtureProportion_0 = {0.1, 0.2}; // D
-        double[] admixtureProportion_1 = {0.2, 0.3}; // E
-        int sequenceLength = 1_000_000;
+        int[] splitEventTime_2 = {2000};  // F and G
+//        double[] ratio_admixture_divergence_0 = {0.4, 0.3}; // D
+//        double[] ratio_admixture_divergence_1 = {0.2, 0.1}; // E
+        int[] admixture_time_0 = {500, 700, 900, 1100};
+        int[] admixture_time_1 = {800, 1000, 1200, 1400};
+        double[] admixtureProportion_0 = {0.1}; // D
+        double[] admixtureProportion_1 = {0.2}; // E
+        int sequenceLength = 10_000_000;
         double recombination_rate = 1e-8;
         double mutation_rate = 1e-8; // 7.1e-9
-
-//        String[] admixed_native_introgressed_pop = {"F","G","D","E"};
-//        int[] sampleSize = {30,30,30,30};
-//        int equilibriumPopulationSize = 10000;
-//        int[] splitEventTime_0 = {10000};
-//        int[] splitEventTime_1 = {8000};
-//        int[] splitEventTime_2 = {500};
-//        double[] ratio_admixture_divergence_0 = {0.3};
-//        double[] ratio_admixture_divergence_1 = {0.1};
-//        double[] admixtureProportion_0 = {0.1};
-//        double[] admixtureProportion_1 = {0.2};
-//        int sequenceLength = 1_000_000;
-//        double recombination_rate = 1e-8;
-//        double mutation_rate = 1e-8; // 7.1e-9
 
 
         int[] splitEventTime;
@@ -424,15 +412,18 @@ public class DemographicModelTools {
             for (int value : splitEventTime_0) {
                 for (int i : splitEventTime_1) {
                     for (int j : splitEventTime_2) {
-                        for (int k = 0; k < ratio_admixture_divergence_0.length; k++) {
+//                        for (int k = 0; k < ratio_admixture_divergence_0.length; k++) {
+                        for (int k = 0; k < admixture_time_0.length; k++){
                             for (int l = 0; l < admixtureProportion_0.length; l++) {
                                 splitEventTime = new int[3];
                                 splitEventTime[0] = value;
                                 splitEventTime[1] = i;
                                 splitEventTime[2] = j;
                                 admixtureTime = new int[2];
-                                admixtureTime[0] = (int) (j * ratio_admixture_divergence_0[k]);
-                                admixtureTime[1] = (int) (j * ratio_admixture_divergence_1[k]);
+//                                admixtureTime[0] = (int) (j * ratio_admixture_divergence_0[k]);
+//                                admixtureTime[1] = (int) (j * ratio_admixture_divergence_1[k]);
+                                admixtureTime[0] = admixture_time_0[k];
+                                admixtureTime[1] = admixture_time_1[k];
                                 admixtureProportion = new double[2];
                                 admixtureProportion[0] = admixtureProportion_0[l];
                                 admixtureProportion[1] = admixtureProportion_1[l];
@@ -611,7 +602,7 @@ public class DemographicModelTools {
         }
     }
 
-    public static void bottleneck_twoWay(String simulationMetadataOutFile, String outDir){
+    public static void  bottleneck_twoWay(String simulationMetadataOutFile, String outDir){
         String[] admixed_native_introgressed_pop = {"E","D","C"};
         int[] sampleSize = {30,30,30};
         int equilibriumPopulationSize = 10000;
