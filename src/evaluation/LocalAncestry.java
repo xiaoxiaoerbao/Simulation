@@ -277,8 +277,8 @@ public abstract class LocalAncestry {
      *                     introgressed populations, then native population, dim4 is variants
      * @param simulationMetadata simulationMetadata
      * @param simulationDir simulationDir
-     * @return tract size, dim1 is different run, dim2 is different haplotype, dim3 is source
-     * population, first all introgressed populations, then native population, dim4 is different tracts, each tract
+     * @return tract size, dim1 is different run, dim2 is different haplotype, dim3 is introgressed
+     * population, dim4 is different tracts, each tract
      * was represented by a int[2].
      * int[0] means start position (inclusive)
      * int[1] means end position (inclusive)
@@ -349,23 +349,25 @@ public abstract class LocalAncestry {
     /**
      *
      * @param tractSize inferredLocalAncestryTract or actualLocalAncestryTract, dim1 is different run, dim2 is
-     *                  different haplotype, dim3 is source population, first all introgressed populations, then
-     *                  native population, dim4 is different tracts, each tract was represented by a int[2].
+     *                  different haplotype, dim3 is introgressed population, dim4 is different tracts, each tract was represented by a int[2].
      *                  int[0] means start position (inclusive)
      *                  int[1] means end position (inclusive)
      * @param simulationMetadata simulationMetadata
      * @param simulationDir simulationDir
      * @return tract size in log-transformed cM units.
-     * dim1 is different run, dim2 is log-transformed tract size in cM units
+     * dim1 is different run, dim2 is introgressed population index, dim3 is log-transformed tract size in cM units
      */
-    public static DoubleList[] transformTractSizeTo_logcM(List<int[]>[][][] tractSize,
+    public static DoubleList[][] transformTractSizeTo_logcM(List<int[]>[][][] tractSize,
                                                           SimulationMetadata simulationMetadata, String simulationDir){
         int runNum = tractSize.length;
         int admixedTaxaNum = tractSize[0].length;
-        int sourceNum = tractSize[0][0].length;
-        DoubleList[] tractSize_log = new DoubleList[runNum];
+        int introgressedPopNum = tractSize[0][0].length;
+        DoubleList[][] tractSize_log = new DoubleList[runNum][introgressedPopNum];
         for (int i = 0; i < runNum; i++) {
-            tractSize_log[i] = new DoubleArrayList();
+            tractSize_log[i] = new DoubleList[introgressedPopNum];
+            for (int j = 0; j < introgressedPopNum; j++) {
+                tractSize_log[i][j] = new DoubleArrayList();
+            }
         }
         File recombinationMapFile;
         RecombinationMap recombinationMap;
@@ -375,13 +377,13 @@ public abstract class LocalAncestry {
             recombinationMapFile = new File(simulationDir, simulationMetadata.getDemesID()[runIndex]+ ".recombinationMap");
             recombinationMap = new RecombinationMap(recombinationMapFile);
             for (int admixedTaxonIndex = 0; admixedTaxonIndex < admixedTaxaNum; admixedTaxonIndex++) {
-                for (int sourceIndex = 0; sourceIndex < sourceNum; sourceIndex++) {
+                for (int sourceIndex = 0; sourceIndex < introgressedPopNum; sourceIndex++) {
                     int tractNum = tractSize[runIndex][admixedTaxonIndex][sourceIndex].size();
                     for (int tractIndex = 0; tractIndex < tractNum; tractIndex++) {
                         startPos = tractSize[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[0];
                         endPos = tractSize[runIndex][admixedTaxonIndex][sourceIndex].get(tractIndex)[1];
                         mapDistance = recombinationMap.getDistance(startPos, endPos);
-                        tractSize_log[runIndex].add(Math.log(mapDistance));
+                        tractSize_log[runIndex][sourceIndex].add(Math.log(mapDistance));
                     }
 
                 }
@@ -393,16 +395,23 @@ public abstract class LocalAncestry {
 
     /**
      * @param inferredValue_tractSize inferred tract size in log-transformed cM units.
-     *                                dim1 is different run, dim2 is tract size
+     *                                dim1 is different run, dim2 is introgressed population index, dim3 is tract size in log cM
      * @param actualValue_tractSize actual tract size in log-transformed cM units.
-     *                              dim1 is different run, dim2 is tract size in log cM
-     * @return KLDivergence dim1 is different run
+     *                              dim1 is different run, dim2 is introgressed population index, dim3 is tract size in log cM
+     * @return KLDivergence dim1 is different run, dim2 is introgressed population index
      */
-    public static double[] calculateKLDivergence(DoubleList[] inferredValue_tractSize, DoubleList[] actualValue_tractSize){
-        double[] klDivergence = new double[actualValue_tractSize.length];
-        for (int i = 0; i < klDivergence.length; i++) {
-            klDivergence[i] = KLDivergence.calculate_KLDivergence(actualValue_tractSize[i].toDoubleArray(),
-                    inferredValue_tractSize[i].toDoubleArray(), 30);
+    public static double[][] calculateKLDivergence(DoubleList[][] inferredValue_tractSize,
+                                                 DoubleList[][] actualValue_tractSize){
+        int runNum = inferredValue_tractSize.length;
+        int introgressedPopNum = inferredValue_tractSize[0].length;
+        double[][] klDivergence = new double[runNum][introgressedPopNum];
+        for (int runIndex = 0; runIndex < runNum; runIndex++) {
+            for (int sourceIndex = 0; sourceIndex < introgressedPopNum; sourceIndex++) {
+                klDivergence[runIndex][sourceIndex] =
+                        KLDivergence.calculate_KLDivergence(actualValue_tractSize[runIndex][sourceIndex].toDoubleArray(),
+                        inferredValue_tractSize[runIndex][sourceIndex].toDoubleArray(), 30);
+            }
+
         }
         return klDivergence;
     }
