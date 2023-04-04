@@ -382,11 +382,11 @@ public class DemographicModelTools {
         int equilibriumPopulationSize = 10000;
         int[] splitEventTime_0 = {10000}; // D
         int[] splitEventTime_1 = {8000}; // E
-        int[] splitEventTime_2 = {2000};  // F and G
+        int[] splitEventTime_2 = {3000};  // F and G
 //        double[] ratio_admixture_divergence_0 = {0.4, 0.3}; // D
 //        double[] ratio_admixture_divergence_1 = {0.2, 0.1}; // E
         int[] admixture_time_0 = {500, 700, 900, 1100};
-        int[] admixture_time_1 = {800, 1000, 1200, 1400};
+        int[] admixture_time_1 = {1000, 1400, 1800, 2200};
         double[] admixtureProportion_0 = {0.1}; // D
         double[] admixtureProportion_1 = {0.2}; // E
         int sequenceLength = 10_000_000;
