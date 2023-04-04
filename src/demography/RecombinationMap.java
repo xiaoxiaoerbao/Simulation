@@ -17,6 +17,8 @@ public class RecombinationMap {
     double[] recombinationRate; // cM/Mb
     double[] map; // cM
 
+    double meanRate;
+
     public RecombinationMap(File recombinationMapFile){
         IntList posList = new IntArrayList();
         DoubleList rateList = new DoubleArrayList();
@@ -37,6 +39,14 @@ public class RecombinationMap {
         this.pos = posList.toIntArray();
         this.recombinationRate = rateList.toDoubleArray();
         this.map = mapList.toDoubleArray();
+        this.meanRate=this.getMeanRate();
+    }
+
+    private double getMeanRate(){
+        int posNum = this.map.length;
+        double geneticsDistance = map[posNum-1] - map[0];
+        double bp = pos[posNum-1] - pos[0];
+        return geneticsDistance/bp;
     }
 
     /**
@@ -52,6 +62,6 @@ public class RecombinationMap {
         int endHit = Arrays.binarySearch(pos, endPos);
         int startIndex = startHit < 0 ? -startHit-1 : startHit;
         int endIndex = endHit < 0 ? -endHit-1 : endHit;
-        return Math.max(1e-8, map[endIndex] - map[startIndex]);
+        return Math.max(this.meanRate, map[endIndex] - map[startIndex]);
     }
 }
