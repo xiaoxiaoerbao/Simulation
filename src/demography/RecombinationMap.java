@@ -47,12 +47,11 @@ public class RecombinationMap {
      */
     public double getDistance(int startPos, int endPos){
         int maxPos = pos[pos.length-1];
-        endPos = endPos > maxPos ? maxPos : endPos;
+        endPos = Math.min(endPos, maxPos);
         int startHit = Arrays.binarySearch(pos, startPos);
         int endHit = Arrays.binarySearch(pos, endPos);
         int startIndex = startHit < 0 ? -startHit-1 : startHit;
         int endIndex = endHit < 0 ? -endHit-1 : endHit;
-        if (startIndex == endIndex) return 1e-8;
-        return map[endIndex] - map[startIndex];
+        return Math.max(1e-8, map[endIndex] - map[startIndex]);
     }
 }
