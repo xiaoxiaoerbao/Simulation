@@ -50,6 +50,7 @@ public class KLDivergence {
 
     public static double calculate_KLDivergence(double[] expData, double[] obsData, int numBins){
         double[] px = calculatePDF(expData, numBins);
+        if (obsData.length == 0) return Double.POSITIVE_INFINITY;
         double[] qx = calculatePDF(obsData, numBins);
         return calculateKLDivergence(px,qx);
     }
