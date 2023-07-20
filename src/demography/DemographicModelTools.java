@@ -609,7 +609,7 @@ public class DemographicModelTools {
         int[] splitEventTime_0 = {10000};
         int[] splitEventTime_1 = {2000};
 //        double[] ratio_admixture_divergence = {0.1, 0.2, 0.4, 0.8};
-        int[] admixture_time = {500};
+        int[] admixture_time = {500,700,900,1100};
         double[] admixtureProportion = {0.1};
         int sequenceLength = 10_000_000;
         double recombination_rate = 1e-8;
